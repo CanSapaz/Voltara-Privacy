@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voltara — EV charger</title>
+  <meta name="description" content="A charging station shared from the Voltara app.">
+  <style>
+    :root { --bg: #ffffff; --fg: #0f141a; --fg2: #5b6470; --card: #f2f4f7; --volt: #6ea000; --volt-ink: #0a0d12; --border: #e3e7ee; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #0a0d12; --fg: #f2f4f7; --fg2: #aab2c0; --card: #151a22; --volt: #c9f73a; --border: #2a313d; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; line-height: 1.5; }
+    main { max-width: 480px; margin: 0 auto; padding: 40px 20px 60px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--fg2); font-size: 14px; }
+    .brand svg { width: 28px; height: 28px; }
+    h1 { font-size: 1.5rem; margin: 24px 0 4px; word-break: break-word; }
+    .sub { color: var(--fg2); margin: 0 0 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; }
+    .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .row:last-child { border-bottom: 0; }
+    .row span:last-child { color: var(--fg2); text-align: right; }
+    .btn { display: block; text-align: center; text-decoration: none; padding: 14px 18px; border-radius: 14px; font-weight: 600; margin-top: 12px; }
+    .primary { background: var(--volt); color: var(--volt-ink); }
+    .secondary { background: var(--card); color: var(--fg); border: 1px solid var(--border); }
+    .hint { color: var(--fg2); font-size: 13px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><circle cx="32" cy="32" r="26" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="120 44" transform="rotate(-60 32 32)"/><path d="M36 12 20 36h11l-3 16 16-24H33l3-16Z" fill="currentColor"/></svg>
+      <span>Shared from Voltara</span>
+    </div>
+    <h1 id="name">Charging station</h1>
+    <p class="sub" id="sub"></p>
+    <div class="card">
+      <div class="row"><span>Power</span><span id="kw">–</span></div>
+      <div class="row"><span>Coordinates</span><span id="coords">–</span></div>
+    </div>
+    <a class="btn primary" id="open" href="#">Open in Voltara</a>
+    <a class="btn secondary" id="maps" href="#" rel="noopener">Open in Google Maps</a>
+    <a class="btn secondary" id="play" href="https://play.google.com/store/apps/details?id=com.fidovasoft.voltara" rel="noopener">Get Voltara on Google Play</a>
+    <p class="hint">Voltara shows 300,000+ EV chargers with prices, charging-time estimates and live availability where national data is open. No account needed.</p>
+  </main>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var id = q.get('id') || '';
+      var name = q.get('n') || 'Charging station';
+      var op = q.get('o') || '';
+      var kw = q.get('kw') || '';
+      var lat = q.get('lat'), lng = q.get('lng');
+      document.title = name + ' — Voltara';
+      document.getElementById('name').textContent = name;
+      document.getElementById('sub').textContent = op;
+      document.getElementById('kw').textContent = kw ? kw + ' kW' : '–';
+      var hasPos = lat && lng;
+      document.getElementById('coords').textContent = hasPos ? Number(lat).toFixed(5) + ', ' + Number(lng).toFixed(5) : '–';
+      var maps = document.getElementById('maps');
+      if (hasPos) maps.href = 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng; else maps.style.display = 'none';
+      var deep = 'voltara://station?' + new URLSearchParams({ id: id, lat: lat || '', lng: lng || '', n: name }).toString();
+      var open = document.getElementById('open');
+      var android = /android/i.test(navigator.userAgent);
+      if (android) {
+        // Android: intent URL falls back to Play when the app is not installed
+        open.href = 'intent://station?' + new URLSearchParams({ id: id, lat: lat || '', lng: lng || '', n: name }).toString() +
+          '#Intent;scheme=voltara;package=com.fidovasoft.voltara;S.browser_fallback_url=' +
+          encodeURIComponent('https://play.google.com/store/apps/details?id=com.fidovasoft.voltara') + ';end';
+      } else {
+        open.href = deep;
+      }
+    })();
+  </script>
+</body>
+</html>
