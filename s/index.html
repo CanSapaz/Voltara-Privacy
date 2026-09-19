@@ -40,6 +40,7 @@
     <a class="btn primary" id="open" href="#">Open in Voltara</a>
     <a class="btn secondary" id="maps" href="#" rel="noopener">Open in Google Maps</a>
     <a class="btn secondary" id="play" href="https://play.google.com/store/apps/details?id=com.fidovasoft.voltara" rel="noopener">Get Voltara on Google Play</a>
+    <a class="btn secondary" id="appstore" href="https://apps.apple.com/search?term=voltara" rel="noopener" style="display:none">Get Voltara on the App Store</a>
     <p class="hint">Voltara shows 300,000+ EV chargers with prices, charging-time estimates and live availability where national data is open. No account needed.</p>
   </main>
   <script>
@@ -61,6 +62,12 @@
       var deep = 'voltara://station?' + new URLSearchParams({ id: id, lat: lat || '', lng: lng || '', n: name }).toString();
       var open = document.getElementById('open');
       var android = /android/i.test(navigator.userAgent);
+      var apple = /iphone|ipad|ipod|macintosh/i.test(navigator.userAgent);
+      if (apple) {
+        // Apple visitors see the App Store button; Play stays for everyone else
+        document.getElementById('play').style.display = 'none';
+        document.getElementById('appstore').style.display = 'block';
+      }
       if (android) {
         // Android: intent URL falls back to Play when the app is not installed
         open.href = 'intent://station?' + new URLSearchParams({ id: id, lat: lat || '', lng: lng || '', n: name }).toString() +
